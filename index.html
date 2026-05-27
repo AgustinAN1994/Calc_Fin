@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Financiera - Inversiones Argentina</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">△</span>
+          <span class="logo-text">Fin<span class="accent">Calc</span></span>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <a href="#" class="nav-item active" data-section="calculadora">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Calculadora</span>
+        </a>
+        <a href="#" class="nav-item" data-section="venta">
+          <span class="nav-icon">📈</span>
+          <span class="nav-label">Análisis Venta</span>
+        </a>
+        <a href="#" class="nav-item" data-section="configuracion">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">Configuración</span>
+        </a>
+        <div class="nav-section-label" style="margin-top:2rem;">Próximamente</div>
+        <a href="#" class="nav-item disabled">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-label">IA Financiera</span>
+          <span class="nav-badge">Pronto</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="theme-toggle">
+          <button id="themeBtn" aria-label="Toggle theme">
+            <span class="theme-icon">🌙</span>
+            <span class="theme-label">Modo Oscuro</span>
+          </button>
+        </div>
+        <div class="sidebar-version">v1.0.0</div>
+      </div>
+    </aside>
+
+    <!-- OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="mainContent">
+      <!-- SECTION: CALCULADORA -->
+      <section class="section active" id="section-calculadora">
+        <div class="section-header">
+          <h1>Calculadora de Inversiones</h1>
+          <p class="section-desc">Analizá bonos, letras y obligaciones negociables</p>
+          <div class="currency-toggle">
+            <button class="curr-btn active" data-curr="ARS">$ ARS</button>
+            <button class="curr-btn" data-curr="USD">US$ USD</button>
+          </div>
+        </div>
+
+        <!-- Sub-nav -->
+        <div class="sub-nav">
+          <button class="sub-nav-btn active" data-sub="bonos">Bonos / Letras</button>
+          <button class="sub-nav-btn" data-sub="on">Obligaciones Negociables</button>
+        </div>
+
+        <!-- Sub: BONOS -->
+        <div class="sub-section active" id="sub-bonos">
+          <div class="card">
+            <div class="card-header">
+              <h2>Bonos y Letras</h2>
+              <span class="card-badge">Cálculo de rendimiento</span>
+            </div>
+            <div class="card-body">
+              <form id="formBonos" class="calc-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="bonoTicket">Ticket</label>
+                    <input type="text" id="bonoTicket" placeholder="Ej: AL30D" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="bonoVto">Fecha Vto</label>
+                    <input type="date" id="bonoVto" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="bonoPrecio">Precio Compra <span class="curr-symbol">$</span></label>
+                    <input type="number" id="bonoPrecio" step="any" placeholder="Ej: 8500" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group rate-mode-group">
+                    <label>Tasa
+                      <span class="rate-mode-toggle" data-target="bono">TNA</span>
+                    </label>
+                    <div class="rate-input-wrap">
+                      <input type="number" id="bonoTasa" step="any" placeholder="Ej: 23.04" required>
+                      <span class="rate-type-badge" id="bonoRateType">TNA</span>
+                    </div>
+                    <input type="hidden" id="bonoTipoTasa" value="TNA">
+                  </div>
+                  <div class="form-group">
+                    <label for="bonoNominales">Nominales</label>
+                    <input type="number" id="bonoNominales" placeholder="Ej: 100000" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="bonoComision">Comisión (%)</label>
+                    <input type="number" id="bonoComision" step="any" placeholder="Ej: 0.25" value="0.25">
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Calcular</button>
+                  <button type="reset" class="btn btn-secondary">Limpiar</button>
+                </div>
+              </form>
+
+              <div class="results" id="bonoResults" style="display:none;">
+                <div class="results-grid">
+                  <div class="result-card">
+                    <span class="result-label">Total Bruto a Retirar</span>
+                    <span class="result-value" id="bonoRendEst">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Total Neto a Retirar</span>
+                    <span class="result-value" id="bonoTotalNeto">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Ganancia Neta Final</span>
+                    <span class="result-value" id="bonoGanNetaFinal">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rend. Mensual</span>
+                    <span class="result-value" id="bonoRendMensual">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">TEM Efectiva</span>
+                    <span class="result-value" id="bonoTEM">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Spread Real</span>
+                    <span class="result-value" id="bonoSpreadReal">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rend. Anualizado</span>
+                    <span class="result-value" id="bonoRendAnual">0%</span>
+                  </div>
+                </div>
+
+                <div class="comparison-grid">
+                  <div class="comp-item">
+                    <span class="comp-label">vs Inflación</span>
+                    <span class="comp-value" id="bonoVsInflacion">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Plazo Fijo</span>
+                    <span class="comp-value" id="bonoVsPF">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Mercado Pago</span>
+                    <span class="comp-value" id="bonoVsMP">0%</span>
+                  </div>
+                </div>
+
+                <div class="analysis-box" id="bonoAnalysis">
+                  <div class="analysis-header">
+                    <span class="analysis-icon">💡</span>
+                    <h3>Análisis automático</h3>
+                  </div>
+                  <p id="bonoAnalysisText" class="analysis-text"></p>
+                  <div class="attractiveness" id="bonoAttractiveness">
+                    <span class="attr-label">Nivel de atractivo:</span>
+                    <span class="attr-badge" id="bonoAttrBadge">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Historial de análisis</h2>
+              <button class="btn btn-sm" id="clearBonoHist">Limpiar</button>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table class="data-table" id="bonoTable">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Precio</th>
+                      <th>TIR</th>
+                      <th>Rend. Anual</th>
+                      <th>Atractivo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bonoTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub: ON -->
+        <div class="sub-section" id="sub-on">
+          <div class="card">
+            <div class="card-header">
+              <h2>Obligaciones Negociables</h2>
+              <span class="card-badge">Cálculo de rendimiento</span>
+            </div>
+            <div class="card-body">
+              <form id="formON" class="calc-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="onTicket">Ticket</label>
+                    <input type="text" id="onTicket" placeholder="Ej: YPF3O" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="onVto">Fecha Vto</label>
+                    <input type="date" id="onVto" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="onPrecio">Precio Compra <span class="curr-symbol">$</span></label>
+                    <input type="number" id="onPrecio" step="any" placeholder="Ej: 9500" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group rate-mode-group">
+                    <label>Tasa
+                      <span class="rate-mode-toggle" data-target="on">TIR</span>
+                    </label>
+                    <div class="rate-input-wrap">
+                      <input type="number" id="onTasa" step="any" placeholder="Ej: 15.0" required>
+                      <span class="rate-type-badge" id="onRateType">TIR</span>
+                    </div>
+                    <input type="hidden" id="onTipoTasa" value="TIR">
+                  </div>
+                  <div class="form-group">
+                    <label for="onNominales">Nominales</label>
+                    <input type="number" id="onNominales" placeholder="Ej: 100000" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="onComision">Comisión (%)</label>
+                    <input type="number" id="onComision" step="any" placeholder="Ej: 0.25" value="0.25">
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Calcular</button>
+                  <button type="reset" class="btn btn-secondary">Limpiar</button>
+                </div>
+              </form>
+
+              <div class="results" id="onResults" style="display:none;">
+                <div class="results-grid">
+                  <div class="result-card">
+                    <span class="result-label">Total Bruto a Retirar</span>
+                    <span class="result-value" id="onRendEst">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Total Neto a Retirar</span>
+                    <span class="result-value" id="onTotalNeto">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Ganancia Neta Final</span>
+                    <span class="result-value" id="onGanNetaFinal">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rend. Mensual</span>
+                    <span class="result-value" id="onRendMensual">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">TEM Efectiva</span>
+                    <span class="result-value" id="onTEM">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Spread Real</span>
+                    <span class="result-value" id="onSpreadReal">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rend. Anualizado</span>
+                    <span class="result-value" id="onRendAnual">0%</span>
+                  </div>
+                </div>
+                <div class="comparison-grid">
+                  <div class="comp-item">
+                    <span class="comp-label">vs Inflación</span>
+                    <span class="comp-value" id="onVsInflacion">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Plazo Fijo</span>
+                    <span class="comp-value" id="onVsPF">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Mercado Pago</span>
+                    <span class="comp-value" id="onVsMP">0%</span>
+                  </div>
+                </div>
+                <div class="analysis-box" id="onAnalysis">
+                  <div class="analysis-header">
+                    <span class="analysis-icon">💡</span>
+                    <h3>Análisis automático</h3>
+                  </div>
+                  <p id="onAnalysisText" class="analysis-text"></p>
+                  <div class="attractiveness" id="onAttractiveness">
+                    <span class="attr-label">Nivel de atractivo:</span>
+                    <span class="attr-badge" id="onAttrBadge">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Historial de análisis</h2>
+              <button class="btn btn-sm" id="clearONHist">Limpiar</button>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table class="data-table" id="onTable">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Precio</th>
+                      <th>TIR</th>
+                      <th>Rend. Anual</th>
+                      <th>Atractivo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="onTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: VENTA -->
+      <section class="section" id="section-venta">
+        <div class="section-header">
+          <h1>Análisis de Venta</h1>
+          <p class="section-desc">Evaluá si conviene vender o mantener tus tenencias</p>
+          <div class="currency-toggle">
+            <button class="curr-btn active" data-curr="ARS">$ ARS</button>
+            <button class="curr-btn" data-curr="USD">US$ USD</button>
+          </div>
+        </div>
+
+        <div class="sub-nav">
+          <button class="sub-nav-btn active" data-sub="ventaBonos">Bonos / Letras</button>
+          <button class="sub-nav-btn" data-sub="ventaON">Obligaciones Negociables</button>
+        </div>
+
+        <!-- Sub: Venta Bonos -->
+        <div class="sub-section active" id="sub-ventaBonos">
+          <div class="card">
+            <div class="card-header">
+              <h2>Cargar tenencia - Bonos / Letras</h2>
+            </div>
+            <div class="card-body">
+              <form id="formVentaBono" class="calc-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="ventaBonoTicket">Ticket</label>
+                    <input type="text" id="ventaBonoTicket" placeholder="Ej: AL30D" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaBonoNominales">Nominales</label>
+                    <input type="number" id="ventaBonoNominales" placeholder="Ej: 50000" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaBonoPCompra">Precio Compra <span class="curr-symbol">$</span></label>
+                    <input type="number" id="ventaBonoPCompra" step="any" placeholder="Ej: 8200" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group date-mode-group">
+                    <label>Fecha Compra
+                      <span class="date-mode-toggle" data-target="ventaBono">Usar días</span>
+                    </label>
+                    <input type="date" id="ventaBonoFecha" class="date-input" required>
+                    <input type="number" id="ventaBonoDias" class="days-input" style="display:none;" placeholder="Ej: 166" min="1">
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaBonoPActual">Precio Actual <span class="curr-symbol">$</span></label>
+                    <input type="number" id="ventaBonoPActual" step="any" placeholder="Ej: 9500" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaBonoComision">Comisión (%)</label>
+                    <input type="number" id="ventaBonoComision" step="any" placeholder="0.25" value="0.25">
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Analizar</button>
+                  <button type="reset" class="btn btn-secondary">Limpiar</button>
+                </div>
+              </form>
+
+              <div class="results" id="ventaBonoResults" style="display:none;">
+                <div class="traffic-light" id="ventaBonoTraffic">
+                  <span class="light red" id="vbRed"></span>
+                  <span class="light yellow" id="vbYellow"></span>
+                  <span class="light green" id="vbGreen"></span>
+                </div>
+                <div class="results-grid">
+                  <div class="result-card">
+                    <span class="result-label">Ganancia / Pérdida</span>
+                    <span class="result-value" id="vbGanPerd">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Neto a Cobrar</span>
+                    <span class="result-value" id="vbNetoACobrar">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rendimiento %</span>
+                    <span class="result-value" id="vbRendPct">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">TNA</span>
+                    <span class="result-value" id="vbTNA">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">TEM</span>
+                    <span class="result-value" id="vbTEM">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Spread Real</span>
+                    <span class="result-value" id="vbSpreadReal">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rend. Anualizado</span>
+                    <span class="result-value" id="vbRendAnual">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Precio Mínimo Venta</span>
+                    <span class="result-value" id="vbPrecioMin">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Precio Equilibrio</span>
+                    <span class="result-value" id="vbPrecioEq">$0</span>
+                  </div>
+                </div>
+                <div class="comparison-grid">
+                  <div class="comp-item">
+                    <span class="comp-label">vs Inflación</span>
+                    <span class="comp-value" id="vbVsInflacion">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Plazo Fijo</span>
+                    <span class="comp-value" id="vbVsPF">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Mercado Pago</span>
+                    <span class="comp-value" id="vbVsMP">0%</span>
+                  </div>
+                </div>
+                <div class="analysis-box" id="vbAnalysis">
+                  <div class="analysis-header">
+                    <span class="analysis-icon">💡</span>
+                    <h3>Recomendación</h3>
+                  </div>
+                  <p id="vbAnalysisText" class="analysis-text"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Cartera - Bonos / Letras</h2>
+              <div class="card-actions">
+                <button class="btn btn-sm" id="exportVentaBonoPDF">Exportar PDF</button>
+                <button class="btn btn-sm" id="exportVentaBonoExcel">Exportar CSV</button>
+                <button class="btn btn-sm" id="importVentaBonoExcel">Importar Excel</button>
+                <input type="file" id="importVentaBonoExcelInput" accept=".xlsx,.xls" style="display:none;">
+                <button class="btn btn-sm" id="clearVentaBono">Limpiar</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table class="data-table" id="ventaBonoTable">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Nominales</th>
+                      <th>Compra</th>
+                      <th>Actual</th>
+                      <th>Gan/Perd</th>
+                      <th>Rend%</th>
+                      <th>Semáforo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ventaBonoBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub: Venta ON -->
+        <div class="sub-section" id="sub-ventaON">
+          <div class="card">
+            <div class="card-header">
+              <h2>Cargar tenencia - Obligaciones Negociables</h2>
+            </div>
+            <div class="card-body">
+              <form id="formVentaON" class="calc-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="ventaONTicket">Ticket</label>
+                    <input type="text" id="ventaONTicket" placeholder="Ej: YPF3O" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaONNominales">Nominales</label>
+                    <input type="number" id="ventaONNominales" placeholder="Ej: 50000" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaONPCompra">Precio Compra <span class="curr-symbol">$</span></label>
+                    <input type="number" id="ventaONPCompra" step="any" placeholder="Ej: 9000" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group date-mode-group">
+                    <label>Fecha Compra
+                      <span class="date-mode-toggle" data-target="ventaON">Usar días</span>
+                    </label>
+                    <input type="date" id="ventaONFecha" class="date-input" required>
+                    <input type="number" id="ventaONDias" class="days-input" style="display:none;" placeholder="Ej: 166" min="1">
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaONPActual">Precio Actual <span class="curr-symbol">$</span></label>
+                    <input type="number" id="ventaONPActual" step="any" placeholder="Ej: 10000" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ventaONComision">Comisión (%)</label>
+                    <input type="number" id="ventaONComision" step="any" placeholder="0.25" value="0.25">
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Analizar</button>
+                  <button type="reset" class="btn btn-secondary">Limpiar</button>
+                </div>
+              </form>
+
+              <div class="results" id="ventaONResults" style="display:none;">
+                <div class="traffic-light" id="ventaONTraffic">
+                  <span class="light red" id="vonRed"></span>
+                  <span class="light yellow" id="vonYellow"></span>
+                  <span class="light green" id="vonGreen"></span>
+                </div>
+                <div class="results-grid">
+                  <div class="result-card">
+                    <span class="result-label">Ganancia / Pérdida</span>
+                    <span class="result-value" id="vonGanPerd">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Neto a Cobrar</span>
+                    <span class="result-value" id="vonNetoACobrar">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rendimiento %</span>
+                    <span class="result-value" id="vonRendPct">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">TNA</span>
+                    <span class="result-value" id="vonTNA">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">TEM</span>
+                    <span class="result-value" id="vonTEM">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Spread Real</span>
+                    <span class="result-value" id="vonSpreadReal">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Rend. Anualizado</span>
+                    <span class="result-value" id="vonRendAnual">0%</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Precio Mínimo Venta</span>
+                    <span class="result-value" id="vonPrecioMin">$0</span>
+                  </div>
+                  <div class="result-card">
+                    <span class="result-label">Precio Equilibrio</span>
+                    <span class="result-value" id="vonPrecioEq">$0</span>
+                  </div>
+                </div>
+                <div class="comparison-grid">
+                  <div class="comp-item">
+                    <span class="comp-label">vs Inflación</span>
+                    <span class="comp-value" id="vonVsInflacion">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Plazo Fijo</span>
+                    <span class="comp-value" id="vonVsPF">0%</span>
+                  </div>
+                  <div class="comp-item">
+                    <span class="comp-label">vs Mercado Pago</span>
+                    <span class="comp-value" id="vonVsMP">0%</span>
+                  </div>
+                </div>
+                <div class="analysis-box" id="vonAnalysis">
+                  <div class="analysis-header">
+                    <span class="analysis-icon">💡</span>
+                    <h3>Recomendación</h3>
+                  </div>
+                  <p id="vonAnalysisText" class="analysis-text"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Cartera - Obligaciones Negociables</h2>
+              <div class="card-actions">
+                <button class="btn btn-sm" id="exportVentaONPDF">Exportar PDF</button>
+                <button class="btn btn-sm" id="exportVentaONExcel">Exportar CSV</button>
+                <button class="btn btn-sm" id="importVentaONExcel">Importar Excel</button>
+                <input type="file" id="importVentaONExcelInput" accept=".xlsx,.xls" style="display:none;">
+                <button class="btn btn-sm" id="clearVentaON">Limpiar</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table class="data-table" id="ventaONTable">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Nominales</th>
+                      <th>Compra</th>
+                      <th>Actual</th>
+                      <th>Gan/Perd</th>
+                      <th>Rend%</th>
+                      <th>Semáforo</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ventaONBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: CONFIGURACION -->
+      <section class="section" id="section-configuracion">
+        <div class="section-header">
+          <h1>Configuración</h1>
+          <p class="section-desc">Parámetros financieros para los cálculos</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Parámetros generales</h2>
+            <span class="card-badge">Auto-guardado</span>
+          </div>
+          <div class="card-body">
+            <form id="configForm" class="calc-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfgInflacion">Inflación Mensual (%)</label>
+                  <input type="number" id="cfgInflacion" step="any" placeholder="Ej: 3.5">
+                </div>
+                <div class="form-group">
+                  <label for="cfgPlazoFijo">Tasa Plazo Fijo (%)</label>
+                  <input type="number" id="cfgPlazoFijo" step="any" placeholder="Ej: 35">
+                </div>
+                <div class="form-group">
+                  <label for="cfgMercadoPago">Tasa Mercado Pago (%)</label>
+                  <input type="number" id="cfgMercadoPago" step="any" placeholder="Ej: 40">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfgComision">Comisión (%)</label>
+                  <input type="number" id="cfgComision" step="any" placeholder="Ej: 0.25">
+                </div>
+              </div>
+              <div class="form-row" style="border-top:1px solid var(--border-color);padding-top:1rem;margin-top:0.5rem;">
+                <div class="form-group">
+                  <label for="cfgInflacionUSD">Inflación Mensual USD (%)</label>
+                  <input type="number" id="cfgInflacionUSD" step="any" placeholder="Ej: 0.25">
+                </div>
+                <div class="form-group">
+                  <label for="cfgPlazoFijoUSD">Tasa Plazo Fijo USD (%)</label>
+                  <input type="number" id="cfgPlazoFijoUSD" step="any" placeholder="Ej: 1.5">
+                </div>
+                <div class="form-group">
+                  <label for="cfgMercadoPagoUSD">Tasa MP USD (%)</label>
+                  <input type="number" id="cfgMercadoPagoUSD" step="any" placeholder="Ej: 0">
+                </div>
+              </div>
+                <div class="form-group">
+                  <label for="cfgTNA">TNA Referencia (%)</label>
+                  <input type="number" id="cfgTNA" step="any" placeholder="Ej: 50">
+                </div>
+                <div class="form-group">
+                  <label for="cfgTEM">TEM Referencia (%)</label>
+                  <input type="number" id="cfgTEM" step="any" placeholder="Ej: 3.8">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+                <button type="button" class="btn btn-secondary" id="cfgReset">Restablecer</button>
+              </div>
+            </form>
+
+            <div class="config-saved-msg" id="configSavedMsg" style="display:none;">
+              ✓ Configuración guardada correctamente
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Importar / Exportar datos</h2>
+          </div>
+          <div class="card-body">
+            <div class="import-export-grid">
+              <div class="ie-item">
+                <h4>Exportar datos</h4>
+                <p>Descargá toda tu información en JSON</p>
+                <button class="btn btn-primary" id="exportData">Exportar</button>
+              </div>
+              <div class="ie-item">
+                <h4>Importar datos</h4>
+                <p>Restaurá información desde un archivo</p>
+                <input type="file" id="importFileInput" accept=".json" style="display:none;">
+                <button class="btn btn-secondary" id="importData">Importar</button>
+              </div>
+              <div class="ie-item">
+                <h4>Borrar todos los datos</h4>
+                <p>Eliminá toda la información almacenada</p>
+                <button class="btn btn-danger" id="clearAllData">Borrar todo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
